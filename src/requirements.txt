@@ -1,0 +1,10 @@
+Flask==3.0.2
+Flask_Cors==4.0.0
+lightning==2.2.1
+numpy==1.22.0
+paddlenlp==2.6.1
+pyttsx3==2.90
+torch==2.2.1
+torchaudio==2.2.1
+tqdm==4.66.2
+transformers==4.38.2

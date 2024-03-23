@@ -1,0 +1,4 @@
+sample_rate: 16000
+vad:
+  model_path: "C:\\test\\silero_vad" # remove model_path if we want to download from torch hub
+  has_speech_threshold: 0.5
