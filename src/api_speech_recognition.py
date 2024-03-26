@@ -6,7 +6,9 @@ from models.ie.predictor import UIEPredictor
 from models.asr_model import ASRModel
 
 from models.wakeup_model import WakeupModel
+from models.wake_up_model_multi import WakeUpModelMulti
 from models.utc_model import UTCModel
+from itn.chinese.inverse_normalizer import InverseNormalizer
 
 cmd_categories=["无线电实时监测","无线电查询正常监测站数量","无线电查询异常监测站数量","无线电查询非法信号监测站数量","无线电查询非法信号数量","无线电查询信号数量","无线电查询合法信号数量","无线电查询航空干扰数量"]
 
@@ -24,7 +26,12 @@ config={
         "context_path":f"{base_path}/asr/context.txt",
     },
     
+    # wakeup
+    "wakeup":{
+    "use-multi-hotwords":True,
     "ref_path":f"{base_path}/wakeup/samples",
+    "hotwords":{"Hey-Hunter":"Hey_Hunter_ref.json","Hi-Hunter":"Hi_Hunter_ref.json","Hey-skywalker":"hey-skywalker_ref.json","Hi-Skywalker":"Hi_skywalker_ref.json"},
+    },
     "ie":{
     "model_path":f"{base_path}/ie/best.ckpt",
     "pretrained_model":f"{base_path}/ie",
@@ -44,11 +51,14 @@ config={
     }
 
 }
-
-wakeup_model=WakeupModel(config)
+if(config["wakeup"]):
+    wakeup_model=WakeUpModelMulti(config["wakeup"])
+else:
+    wakeup_model=WakeupModel(config["wakeup"])
 asr_model=ASRModel(config["asr"])
 ie_model=UIEPredictor(config["ie"])
 utc_model=UTCModel(config["utc"])
+invnormalizer = InverseNormalizer()
 
 app=Flask(__name__)
 CORS(app)
@@ -77,6 +87,7 @@ def recognize_cmd():
     #data.close()
     data=np.frombuffer(data,dtype=np.float32)
     result=asr_model.predict_stream(data,sample_rate)
+    result["text"]=invnormalizer.normalize(result["text"])
     print(f"decode result: text={result['text']},confident={result['confidence']}")
     parameters=""
     if result["text"]:

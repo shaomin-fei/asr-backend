@@ -55,3 +55,5 @@ so we change it's requirement.txt to support higher pyaudio version
    https://www.paddlepaddle.org.cn/install/quick?docurl=/documentation/docs/zh/2.0/install/pip/windows-pip.html
    
    python -m pip install paddlepaddle==2.6.0 -i https://pypi.tuna.tsinghua.edu.cn/simple
+   7. install WeTExtProcessing to take care of number-text convertion
+    pip install WeTextProcessing
