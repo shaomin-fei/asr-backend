@@ -30,6 +30,7 @@ config={
     "wakeup":{
     "use-multi-hotwords":True,
     "ref_path":f"{base_path}/wakeup/samples",
+    "threshold":{"Hey-Hunter":0.65,"Hi-Hunter":0.65}, # the length of hunter is much less, so we reduce the threshold. Default threshold is 0.7
     "hotwords":{"Hey-Hunter":"Hey_Hunter_ref.json","Hi-Hunter":"Hi_Hunter_ref.json","Hey-skywalker":"hey-skywalker_ref.json","Hi-Skywalker":"Hi_skywalker_ref.json"},
     },
     "ie":{
@@ -51,6 +52,9 @@ config={
     }
 
 }
+
+invnormalizer = InverseNormalizer(enable_0_to_9=True,enable_million=True)
+
 if(config["wakeup"]):
     wakeup_model=WakeUpModelMulti(config["wakeup"])
 else:
@@ -58,7 +62,6 @@ else:
 asr_model=ASRModel(config["asr"])
 ie_model=UIEPredictor(config["ie"])
 utc_model=UTCModel(config["utc"])
-invnormalizer = InverseNormalizer()
 
 app=Flask(__name__)
 CORS(app)
@@ -101,6 +104,7 @@ def recognize_cmd():
             parameters=extracted[0]
         result["cmdType"]=cmd_type
         result["parameters"]=parameters
+        result["success"]=True
     return result
 
 

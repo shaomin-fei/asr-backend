@@ -8,6 +8,7 @@ class WakeUpModelMulti:
     def __init__(self,config:dict) -> None:
         ref_path=config.get("ref_path",samples_loc)
         hotwords=config.get("hotwords",{})
+        threshold=config.get("threshold",{})
         self.base_model = Resnet50_Arc_loss()
         # sample_rate=16000*1.5second
         self.data_len=24000
@@ -19,7 +20,7 @@ class WakeUpModelMulti:
                 hotword=key,
                 model=self.base_model,
                 reference_file=os.path.join(ref_path,hotwords[key]),
-                threshold=0.7,
+                threshold=0.7 if key not in threshold.keys() else threshold[key],
                 relaxation_time=2
             )
             self.hotwords_detector.append(hw)

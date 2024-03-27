@@ -55,5 +55,13 @@ so we change it's requirement.txt to support higher pyaudio version
    https://www.paddlepaddle.org.cn/install/quick?docurl=/documentation/docs/zh/2.0/install/pip/windows-pip.html
    
    python -m pip install paddlepaddle==2.6.0 -i https://pypi.tuna.tsinghua.edu.cn/simple
+   
    7. install WeTExtProcessing to take care of number-text convertion
     pip install WeTextProcessing
+    NOTICE: the library has a problem with "三G", can't inverse normalization it correctly(still showing 三G after itn),
+    the problem is in the version 0.1.12, the packaged zh_itn_tagger.fst and zh_itn_verbalizer.fst files in (../../../../../miniconda3/envs/asr-integration/lib/python3.9/site-packages/itn/zh_itn_tagger.fst) are not correct. 
+    The workaround is download the code, run main.py in itn folder, the two files will be generated. Copy generated files and replace the installed ones. I have already generated those tow files which can be found here: /home/fsm/Desktop/ml/asr-integration-pretrained-models/text-normalization/src/WeTextProcessing/itn/
+
+   8. install tts
+   https://github.com/coqui-ai/TTS
+   pip install TTS
