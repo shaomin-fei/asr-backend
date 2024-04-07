@@ -16,7 +16,7 @@ class ASRModel:
         model_path=config.get("model_path", "models/wenet/")
         context_path=config.get("context_path", None)
         self.model_wrapper = wenet.load_model("chinese", model_dir=model_path,context_path=context_path)
-        self.replace_words = config.get("replace_words", {"死看":"SCAN"})
+        self.replace_words = config.get("replace_words", {"死看":"SCAN","死干":"SCAN"})
         # the model requires 16000 sample rate
         self.sample_rate = 16000
         self.recording_sample_rate = config.get("recording_sample_rate", 16000) # we need it when doing stream prediction

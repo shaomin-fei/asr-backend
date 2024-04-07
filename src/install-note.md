@@ -55,7 +55,7 @@ so we change it's requirement.txt to support higher pyaudio version
    https://www.paddlepaddle.org.cn/install/quick?docurl=/documentation/docs/zh/2.0/install/pip/windows-pip.html
    
    python -m pip install paddlepaddle==2.6.0 -i https://pypi.tuna.tsinghua.edu.cn/simple
-   
+
    7. install WeTExtProcessing to take care of number-text convertion
     pip install WeTextProcessing
     NOTICE: the library has a problem with "三G", can't inverse normalization it correctly(still showing 三G after itn),
@@ -63,5 +63,29 @@ so we change it's requirement.txt to support higher pyaudio version
     The workaround is download the code, run main.py in itn folder, the two files will be generated. Copy generated files and replace the installed ones. I have already generated those tow files which can be found here: /home/fsm/Desktop/ml/asr-integration-pretrained-models/text-normalization/src/WeTextProcessing/itn/
 
    8. install tts
+
+   It turns out coqui-ai/TTS has better performance, but its released package(0.22.0) has issues that prevents us from selecting speakers. The soulution is fork the code, and fix it. Then download the code and install it locally.
+   a. git clone https://github.com/shaomin-fei/TTS.git
+   b. go to TTS folder, run
+   pip install -e .[all,dev,notebooks]
+   c. for now the python=3.9
+
+   NOTE: THIS is what I did for ast-integration env. THE PUBLISHED VERSION has a lot of issues. so install from my own repo
+   Since we need to install tts locally, I changed the numpy version in its requirements.txt to numpy>=1.22.0;python_version<="3.10", so we can have compatible versions.
+   In the real prod env, it would be better to deploy TTS separately
+   Besides, I download models manually so we can run in offline,
+   When we download zh-CN model, we need to change the value of stats_path in config.json to the path where the file is cached. Otherwise the model can't find the file when loading it
+
+
+
+   The original Repo is below, but we don't use it.
    https://github.com/coqui-ai/TTS
    pip install TTS
+   When python<3.10,the numpy version is 1.22.0, which is not compatiable with tflite-runtime, so it would be better to install it in a new virtual env
+
+   we could use bark, but the quality provided by its demo is too poor.
+   https://github.com/suno-ai/bark?tab=readme-ov-file
+
+   a. pip install git+https://github.com/suno-ai/bark.git
+   b. in order to user downloaded models, add env variable XDG_CACHE_HOME and its value is the path of the models
+   c. the audio quality of bark is poor

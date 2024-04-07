@@ -10,8 +10,20 @@ from models.wake_up_model_multi import WakeUpModelMulti
 from models.utc_model import UTCModel
 from itn.chinese.inverse_normalizer import InverseNormalizer
 
-cmd_categories=["无线电实时监测","无线电查询正常监测站数量","无线电查询异常监测站数量","无线电查询非法信号监测站数量","无线电查询非法信号数量","无线电查询信号数量","无线电查询合法信号数量","无线电查询航空干扰数量"]
-
+cmd_categories=["无线电实时监测","无线电查询正常监测站数量","无线电查询异常监测站数量","无线电查询非法信号监测站数量","无线电查询非法信号数量",
+                "无线电查询信号数量","无线电查询合法信号数量","无线电查询航空干扰数量"]
+# for test reason, 
+test_data={
+    "无线电实时监测":["任务执行成功!"],
+    "无线电查询正常监测站数量":["一共有5个监测站正常工作。","一共有15个监测站正常工作。"],
+    "无线电查询异常监测站数量":["有15个监测站异常。","有2个监测站异常。"],
+    "无线电查询非法信号监测站数量":["两个监测站发现异常信号。","没有监测站发现异常信号。"],
+    "无线电查询非法信号数量":["发现100个非法信号。","发现10个非法信号。"],
+    "无线电查询信号数量":["发现10个信号。","发现20个信号。"],
+    "无线电查询合法信号数量":["发现11个合法信号。","发现20个合法信号。"],
+    "无线电查询航空干扰数量":["到目前为止，今天一共发现100个航空干扰。","一共发现12个航空干扰。"]
+}
+########################
 base_path_windows="C:\\test\\asr_integration"
 base_path_linux="/home/fsm/Desktop/ml/asr-integration-pretrained-models"
 base_path=base_path_linux
@@ -80,7 +92,7 @@ def is_wake_up():
 
 @app.route('/api/recognize/cmd', methods=['POST'])
 def recognize_cmd():
-    result={"text":"","parameters":"", "cmdType":""}
+    result={"text":"","parameters":{}, "cmdType":""}
     if request.method == "OPTIONS":
          return result
     sample_rate =int(request.form.get('sampleRate', 16000)) 
@@ -92,19 +104,26 @@ def recognize_cmd():
     result=asr_model.predict_stream(data,sample_rate)
     result["text"]=invnormalizer.normalize(result["text"])
     print(f"decode result: text={result['text']},confident={result['confidence']}")
-    parameters=""
+    parameters={}
+    ttsWords=""
     if result["text"]:
         # classify first
         category=utc_model.predict(result["text"])
         if category["text"] not in cmd_categories:
             cmd_type="Unknown"
+            ttsWords="无法识别的指令"
         else:
             cmd_type=category["text"]
             extracted=ie_model(result["text"])
             parameters=extracted[0]
+            # test, randomly return tts words
+            index=np.random.randint(0,len(test_data[cmd_type]),1)
+            ttsWords=test_data[cmd_type][index[0]]
         result["cmdType"]=cmd_type
-        result["parameters"]=parameters
+        result["parameters"]=parameters if parameters is not None else []
         result["success"]=True
+        station=result["parameters"].get("监测站",[{"text":""}])
+        result["ttsMessage"]=f"{station[0]['text']}{ttsWords}"
     return result
 
 
@@ -120,6 +139,10 @@ def recognize_stream():
     result=asr_model.predict_stream(data,sample_rate)
     print(f"decode result: text={result['text']},confident={result['confidence']}")
     return result
+
+@app.route('/api/tts', methods=['POST'])
+def tts(words:str):
+    pass
 
 all_ip_address="0.0.0.0"
 local_ip_address="127.0.0.1"
